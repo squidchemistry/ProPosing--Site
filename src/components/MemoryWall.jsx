@@ -5,6 +5,22 @@ import './MemoryWall.css';
 const MOCK_COLORS = ['#ffd6e7', '#d4e8d4', '#d4d4e8', '#e8e4d4', '#e8d4d4', '#d4e4e8'];
 const MOCK_EMOJIS = ['🌸', '💕', '🌟', '🌹', '🎀', '💫'];
 
+// Compress image to a max dimension and quality before storing as Base64
+function compressImage(dataUrl, maxWidth, quality) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, maxWidth / img.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.src = dataUrl;
+  });
+}
+
 const MOCK_ITEMS = Array.from({ length: 6 }, (_, i) => ({
   id: `mock-${i}`,
   mock: true,
@@ -34,14 +50,17 @@ export default function MemoryWall() {
       if (!file.type.startsWith('image/')) return;
       const reader = new FileReader();
       reader.onload = async (e) => {
+        // Compress image to max 800px wide and 0.7 quality to stay under Supabase row limits
+        const compressed = await compressImage(e.target.result, 800, 0.7);
         const newMemory = {
           id: Date.now().toString() + Math.random().toString(36).slice(2),
-          src: e.target.result,
+          src: compressed,
           caption: '',
           date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
           tilt: `${(Math.random() * 6 - 3).toFixed(1)}deg`,
         };
-        const { data } = await supabase.from('memories').insert(newMemory).select().single();
+        const { data, error } = await supabase.from('memories').insert(newMemory).select().single();
+        if (error) { console.error('Upload failed:', error.message); return; }
         setMemories(prev => [...prev, data]);
       };
       reader.readAsDataURL(file);

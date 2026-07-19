@@ -151,8 +151,8 @@ export default function MusicPlayer() {
 
   return (
     <div className="music-player" role="region" aria-label="Music Player">
-      {/* Hidden YT iframe mount point */}
-      <div id={iframeContainerId} style={{ display: 'none' }} aria-hidden="true" />
+      {/* Hidden YT iframe mount point — must not be display:none or YT API won't init */}
+      <div id={iframeContainerId} style={{ position: 'fixed', bottom: 0, left: 0, width: 0, height: 0, visibility: 'hidden', pointerEvents: 'none' }} aria-hidden="true" />
 
       {/* Track info */}
       <div className="music-track-info">
