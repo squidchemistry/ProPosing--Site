@@ -1,0 +1,234 @@
+.quiz-countdown h2 {
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  font-style: italic;
+  color: var(--rose-light);
+  margin-bottom: 6px;
+}
+
+.quiz-countdown .subtitle {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  margin-bottom: 32px;
+}
+
+/* Countdown */
+.countdown-section {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 36px;
+}
+
+.countdown-section h3 {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--lavender);
+  margin-bottom: 16px;
+}
+
+.date-input-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.date-input-row input { max-width: 220px; }
+
+.countdown-display {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.count-unit {
+  text-align: center;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 18px 20px;
+  min-width: 80px;
+}
+
+.count-number {
+  font-family: var(--font-heading);
+  font-size: 2.2rem;
+  color: var(--rose-light);
+  display: block;
+  text-shadow: 0 0 20px var(--glow-pink);
+}
+
+.count-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 4px;
+  display: block;
+}
+
+.date-passed {
+  color: var(--lavender);
+  font-style: italic;
+  font-size: 1rem;
+}
+
+/* Quiz */
+.quiz-section {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 28px;
+}
+
+.quiz-section h3 {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--lavender);
+  margin-bottom: 6px;
+}
+
+.quiz-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+.question-card { margin-bottom: 24px; }
+
+.question-text {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-light);
+  margin-bottom: 12px;
+}
+
+.q-number {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.option-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text-light);
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+}
+
+.option-btn:hover:not(:disabled) {
+  border-color: var(--rose-light);
+  background: rgba(183,110,121,0.12);
+}
+
+.option-btn.correct {
+  border-color: #6bcf7f;
+  background: rgba(107,207,127,0.12);
+  color: #6bcf7f;
+}
+
+.option-btn.wrong {
+  border-color: #ff6b8a;
+  background: rgba(255,107,138,0.1);
+  color: #ff6b8a;
+}
+
+.option-btn:disabled { cursor: default; }
+
+/* Results */
+.quiz-results {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.score-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--rose-gold), var(--lavender-dark));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  box-shadow: 0 0 30px var(--glow-pink);
+  flex-direction: column;
+}
+
+.score-number {
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  color: white;
+  line-height: 1;
+}
+
+.score-total {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.7);
+}
+
+.result-title {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: 1.3rem;
+  color: var(--rose-light);
+  margin-bottom: 8px;
+}
+
+.result-message {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.certificate {
+  background: linear-gradient(135deg, rgba(183,110,121,0.15), rgba(155,114,184,0.15));
+  border: 2px solid rgba(183,110,121,0.4);
+  border-radius: 16px;
+  padding: 24px;
+  margin: 20px auto;
+  max-width: 380px;
+  text-align: center;
+  box-shadow: 0 0 30px var(--glow-pink);
+}
+
+.certificate-title {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-style: italic;
+  color: var(--rose-light);
+  margin-bottom: 8px;
+}
+
+.certificate-text {
+  font-family: var(--font-handwritten);
+  font-size: 1.05rem;
+  color: var(--text-light);
+  line-height: 1.6;
+}
+
+@media (max-width: 500px) {
+  .options { grid-template-columns: 1fr; }
+  .countdown-display { justify-content: center; }
+}

@@ -1,0 +1,198 @@
+.suggestion-box h2 {
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  font-style: italic;
+  color: var(--rose-light);
+  margin-bottom: 6px;
+}
+
+.suggestion-box .subtitle {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  margin-bottom: 32px;
+}
+
+/* Mailbox */
+.mailbox-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.mailbox {
+  position: relative;
+  width: 120px;
+  height: 110px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.mailbox:hover { transform: scale(1.05); }
+
+.mailbox-body {
+  width: 120px;
+  height: 80px;
+  background: linear-gradient(135deg, #b76e79, #9b72b8);
+  border-radius: 8px 8px 4px 4px;
+  position: absolute;
+  bottom: 0;
+  box-shadow: 0 0 24px var(--glow-pink);
+}
+
+.mailbox-flap {
+  width: 120px;
+  height: 44px;
+  position: absolute;
+  top: 0;
+  transform-origin: top center;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.mailbox-flap.open { transform: rotateX(-140deg); }
+
+.mailbox-flap-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.mailbox-slot {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 6px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 3px;
+}
+
+.mailbox-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: white;
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Form */
+.note-form {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 28px;
+  max-width: 560px;
+  margin: 0 auto 40px;
+  width: 100%;
+}
+
+.note-form h3 {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--lavender);
+  margin-bottom: 20px;
+}
+
+.category-select {
+  margin-bottom: 12px;
+}
+
+.note-textarea {
+  resize: vertical;
+  min-height: 100px;
+  margin-bottom: 16px;
+}
+
+/* Notes list */
+.notes-list { max-width: 560px; margin: 0 auto; }
+
+.notes-list h3 {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--lavender);
+  margin-bottom: 16px;
+}
+
+.note-item {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  position: relative;
+  animation: slideIn 0.35s ease forwards;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.note-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.note-category {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--rose-light);
+  background: rgba(183,110,121,0.15);
+  border: 1px solid rgba(183,110,121,0.25);
+  padding: 2px 8px;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.note-date {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.note-text {
+  font-size: 0.88rem;
+  color: var(--text-light);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.note-delete {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: color 0.2s;
+}
+.note-delete:hover { color: #ff6b8a; }
+
+.stamp {
+  position: absolute;
+  bottom: 12px;
+  right: 14px;
+  font-family: var(--font-handwritten);
+  font-size: 0.65rem;
+  color: rgba(183,110,121,0.5);
+  border: 1px solid rgba(183,110,121,0.3);
+  padding: 2px 5px;
+  border-radius: 3px;
+  transform: rotate(-8deg);
+  pointer-events: none;
+}

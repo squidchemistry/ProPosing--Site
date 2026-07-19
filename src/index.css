@@ -1,0 +1,104 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --rose-gold: #b76e79;
+  --rose-light: #e8a0b0;
+  --pink-pastel: #ffd6e7;
+  --pink-soft: #ffe4ec;
+  --cream: #fff8f0;
+  --lavender: #d4b8e0;
+  --lavender-dark: #9b72b8;
+  --dark-bg: #1a0a12;
+  --dark-surface: #2a1020;
+  --dark-glass: rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --glow-pink: rgba(232, 160, 176, 0.4);
+  --glow-gold: rgba(183, 110, 121, 0.5);
+  --text-light: #fff8f0;
+  --text-muted: rgba(255, 248, 240, 0.6);
+  --font-heading: 'Playfair Display', serif;
+  --font-ui: 'Montserrat', sans-serif;
+  --font-handwritten: 'Gochi Hand', cursive;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: var(--font-ui);
+  background: var(--dark-bg);
+  color: var(--text-light);
+  overflow-x: hidden;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--dark-surface); }
+::-webkit-scrollbar-thumb { background: var(--rose-gold); border-radius: 3px; }
+
+/* Glass card utility */
+.glass {
+  background: var(--dark-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+}
+
+/* Glow button utility */
+.btn-primary {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--rose-gold), var(--lavender-dark));
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 12px 28px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px var(--glow-pink);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px var(--glow-gold);
+}
+
+.btn-ghost {
+  font-family: var(--font-ui);
+  font-weight: 500;
+  background: transparent;
+  color: var(--rose-light);
+  border: 1px solid var(--rose-light);
+  border-radius: 50px;
+  padding: 10px 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-ghost:hover {
+  background: rgba(232, 160, 176, 0.1);
+}
+
+input, textarea, select {
+  font-family: var(--font-ui);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  color: var(--text-light);
+  padding: 10px 14px;
+  outline: none;
+  transition: border 0.2s;
+  width: 100%;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--rose-light);
+  box-shadow: 0 0 12px var(--glow-pink);
+}
+
+input::placeholder, textarea::placeholder { color: var(--text-muted); }
+
+select option { background: var(--dark-surface); color: var(--text-light); }
