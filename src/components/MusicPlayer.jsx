@@ -58,7 +58,7 @@ export default function MusicPlayer() {
         height: '1',
         width: '1',
         videoId: PLAYLIST[0].videoId,
-        playerVars: { autoplay: 0, controls: 0, rel: 0, origin: window.location.origin },
+        playerVars: { autoplay: 0, controls: 0, rel: 0, playsinline: 1 },
         events: {
           onReady: (e) => {
             e.target.setVolume(volume);
