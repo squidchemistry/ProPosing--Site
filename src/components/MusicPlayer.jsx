@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import './MusicPlayer.css';
 
+// These are official audio/lyric videos confirmed to allow embedding
 const PLAYLIST = [
   { title: 'Bloom',                   artist: 'The Paper Kites', videoId: 'AP-MniXNqJI' },
   { title: 'Electric Love',           artist: 'BØRNS',           videoId: 'lzDUfKd7v_U' },
@@ -10,123 +11,100 @@ const PLAYLIST = [
   { title: 'As It Was',               artist: 'Harry Styles',    videoId: 'H5v3kku4y6Q' },
 ];
 
-let ytScriptLoaded = false;
-const ytReadyCallbacks = [];
-
-function loadYTScript() {
-  if (ytScriptLoaded) return;
-  ytScriptLoaded = true;
-
-  // Override the global callback to flush any waiting inits
-  window.onYouTubeIframeAPIReady = () => {
-    ytReadyCallbacks.forEach(cb => cb());
-    ytReadyCallbacks.length = 0;
-  };
-
-  const tag = document.createElement('script');
-  tag.src = 'https://www.youtube.com/iframe_api';
-  document.head.appendChild(tag);
-}
-
-function onYTReady(cb) {
-  if (window.YT?.Player) {
-    cb();
-  } else {
-    ytReadyCallbacks.push(cb);
-    loadYTScript();
-  }
-}
-
 export default function MusicPlayer() {
   const [trackIdx, setTrackIdx] = useState(0);
-  const [playerState, setPlayerState] = useState('unstarted');
+  const [ready, setReady] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const [buffering, setBuffering] = useState(false);
   const [volume, setVolume] = useState(70);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [expanded, setExpanded] = useState(false);
-  const [ytReady, setYtReady] = useState(false);
+  const [embedError, setEmbedError] = useState(false);
+
   const playerRef = useRef(null);
   const tickRef = useRef(null);
-  const containerRef = useRef(null);
-  const trackIdxRef = useRef(trackIdx);
-  trackIdxRef.current = trackIdx;
+  const idxRef = useRef(trackIdx);
+  idxRef.current = trackIdx;
 
   useEffect(() => {
-    onYTReady(() => {
-      if (!containerRef.current) return;
-      playerRef.current = new window.YT.Player(containerRef.current, {
-        height: '1',
-        width: '1',
-        videoId: PLAYLIST[0].videoId,
-        playerVars: { autoplay: 0, controls: 0, rel: 0, playsinline: 1 },
+    // Inject YT script if not already present
+    if (!document.getElementById('yt-api')) {
+      const s = document.createElement('script');
+      s.id = 'yt-api';
+      s.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(s);
+    }
+
+    const init = () => {
+      playerRef.current = new window.YT.Player('yt-iframe', {
         events: {
           onReady: (e) => {
             e.target.setVolume(volume);
-            setYtReady(true);
+            setReady(true);
           },
           onStateChange: (e) => {
             const S = window.YT.PlayerState;
             if (e.data === S.PLAYING) {
-              setPlayerState('playing');
-              setDuration(Math.round(playerRef.current.getDuration()));
+              setPlaying(true);
+              setBuffering(false);
+              setEmbedError(false);
+              setDuration(Math.round(e.target.getDuration()));
             } else if (e.data === S.PAUSED) {
-              setPlayerState('paused');
+              setPlaying(false);
+              setBuffering(false);
             } else if (e.data === S.BUFFERING) {
-              setPlayerState('buffering');
+              setBuffering(true);
             } else if (e.data === S.ENDED) {
-              const next = (trackIdxRef.current + 1) % PLAYLIST.length;
-              setTrackIdx(next);
-              playerRef.current?.loadVideoById(PLAYLIST[next].videoId);
-              setProgress(0);
+              advance(1);
+            } else if (e.data === S.UNSTARTED || e.data === -1) {
+              setBuffering(false);
             }
+          },
+          onError: () => {
+            // Video can't be embedded — skip to next
+            setEmbedError(true);
+            setBuffering(false);
+            setPlaying(false);
           },
         },
       });
-    });
-
-    return () => {
-      clearInterval(tickRef.current);
-      playerRef.current?.destroy?.();
     };
+
+    if (window.YT?.Player) {
+      init();
+    } else {
+      window.onYouTubeIframeAPIReady = init;
+    }
+
+    return () => clearInterval(tickRef.current);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Progress ticker
   useEffect(() => {
     clearInterval(tickRef.current);
-    if (playerState === 'playing') {
+    if (playing) {
       tickRef.current = setInterval(() => {
-        if (playerRef.current?.getCurrentTime) {
-          setProgress(Math.round(playerRef.current.getCurrentTime()));
-        }
+        const t = playerRef.current?.getCurrentTime?.();
+        if (t != null) setProgress(Math.round(t));
       }, 1000);
     }
     return () => clearInterval(tickRef.current);
-  }, [playerState]);
+  }, [playing]);
 
-  const togglePlay = () => {
-    if (!playerRef.current || !ytReady) return;
-    playerState === 'playing'
-      ? playerRef.current.pauseVideo()
-      : playerRef.current.playVideo();
-  };
-
-  const goPrev = useCallback(() => {
-    const prev = (trackIdxRef.current - 1 + PLAYLIST.length) % PLAYLIST.length;
-    setTrackIdx(prev);
-    setProgress(0);
-    playerRef.current?.loadVideoById(PLAYLIST[prev].videoId);
-  }, []);
-
-  const goNext = useCallback(() => {
-    const next = (trackIdxRef.current + 1) % PLAYLIST.length;
+  const advance = useCallback((dir) => {
+    const next = (idxRef.current + dir + PLAYLIST.length) % PLAYLIST.length;
+    idxRef.current = next;
     setTrackIdx(next);
     setProgress(0);
+    setDuration(0);
+    setEmbedError(false);
     playerRef.current?.loadVideoById(PLAYLIST[next].videoId);
   }, []);
 
-  const handleTrackSelect = (idx) => {
-    setTrackIdx(idx);
-    setProgress(0);
-    playerRef.current?.loadVideoById(PLAYLIST[idx].videoId);
+  const togglePlay = () => {
+    if (!ready || !playerRef.current) return;
+    playing ? playerRef.current.pauseVideo() : playerRef.current.playVideo();
   };
 
   const handleVolumeChange = (e) => {
@@ -136,57 +114,96 @@ export default function MusicPlayer() {
   };
 
   const handleProgressClick = (e) => {
-    if (!playerRef.current || !duration) return;
+    if (!duration) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const seek = Math.round(((e.clientX - rect.left) / rect.width) * duration);
-    playerRef.current.seekTo(seek, true);
+    playerRef.current?.seekTo(seek, true);
     setProgress(seek);
   };
 
-  const track = PLAYLIST[trackIdx];
-  const isPlaying = playerState === 'playing';
+  const selectTrack = (i) => {
+    setTrackIdx(i);
+    setProgress(0);
+    setDuration(0);
+    setEmbedError(false);
+    playerRef.current?.loadVideoById(PLAYLIST[i].videoId);
+  };
+
   const fmt = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+  const track = PLAYLIST[trackIdx];
+  const pct = duration ? (progress / duration) * 100 : 0;
 
   return (
     <div className="music-player" role="region" aria-label="Music Player">
-      {/* YT mounts here — must be a real visible element (even 1x1px) */}
-      <div
-        ref={containerRef}
-        style={{ width: 1, height: 1, overflow: 'hidden', flexShrink: 0 }}
-        aria-hidden="true"
+
+      {/* The actual YT iframe — positioned off screen but fully rendered */}
+      <iframe
+        id="yt-iframe"
+        src={`https://www.youtube.com/embed/${track.videoId}?enablejsapi=1&controls=0&rel=0&playsinline=1`}
+        allow="autoplay; encrypted-media"
+        allowFullScreen
+        title="YouTube player"
+        style={{
+          position: 'fixed',
+          bottom: 80,
+          right: 0,
+          width: 320,
+          height: 180,
+          opacity: 0,
+          pointerEvents: 'none',
+          zIndex: -1,
+        }}
       />
 
       <div className="music-track-info">
         <div className="track-name">
           <span className="yt-badge">▶ YT</span> {track.title}
         </div>
-        <div className="track-artist">
-          {!ytReady ? 'Loading player...' : track.artist}
+        <div className="track-artist" style={{ color: embedError ? '#ff8080' : undefined }}>
+          {!ready ? 'Loading...' : embedError ? 'Cannot embed — try next ▶' : track.artist}
         </div>
       </div>
 
       <div className="music-controls">
-        <button className="ctrl-btn" onClick={goPrev} aria-label="Previous">⏮</button>
-        <button className="ctrl-btn play-btn" onClick={togglePlay} aria-label={isPlaying ? 'Pause' : 'Play'} disabled={!ytReady}>
-          {!ytReady ? '⏳' : playerState === 'buffering' ? '⏳' : isPlaying ? '⏸' : '▶'}
+        <button className="ctrl-btn" onClick={() => advance(-1)} aria-label="Previous">⏮</button>
+        <button
+          className="ctrl-btn play-btn"
+          onClick={togglePlay}
+          disabled={!ready}
+          aria-label={playing ? 'Pause' : 'Play'}
+        >
+          {buffering ? '⏳' : playing ? '⏸' : '▶'}
         </button>
-        <button className="ctrl-btn" onClick={goNext} aria-label="Next">⏭</button>
+        <button className="ctrl-btn" onClick={() => advance(1)} aria-label="Next">⏭</button>
       </div>
 
       <div className="progress-bar-wrap">
         <span className="time-label">{fmt(progress)}</span>
-        <div className="progress-bar" onClick={handleProgressClick} role="slider" aria-valuemin={0} aria-valuemax={duration} aria-valuenow={progress} aria-label="Track progress">
-          <div className="progress-fill" style={{ width: `${duration ? (progress / duration) * 100 : 0}%` }} />
+        <div
+          className="progress-bar"
+          onClick={handleProgressClick}
+          role="slider"
+          aria-valuemin={0}
+          aria-valuemax={duration}
+          aria-valuenow={progress}
+          aria-label="Track progress"
+        >
+          <div className="progress-fill" style={{ width: `${pct}%` }} />
         </div>
         <span className="time-label">{duration ? fmt(duration) : '--:--'}</span>
       </div>
 
       <div className="volume-wrap">
         <span style={{ fontSize: '0.9rem' }}>{volume === 0 ? '🔇' : volume < 40 ? '🔉' : '🔊'}</span>
-        <input type="range" className="volume-slider" min={0} max={100} value={volume} onChange={handleVolumeChange} aria-label="Volume" />
+        <input
+          type="range" className="volume-slider"
+          min={0} max={100} value={volume}
+          onChange={handleVolumeChange}
+          aria-label="Volume"
+        />
       </div>
 
-      <button className="ctrl-btn" onClick={() => setExpanded(e => !e)} aria-label="Toggle playlist" aria-expanded={expanded}>🎵</button>
+      <button className="ctrl-btn" onClick={() => setExpanded(e => !e)} aria-label="Playlist" aria-expanded={expanded}>🎵</button>
 
       {expanded && (
         <div className="playlist-dropdown" role="listbox" aria-label="Playlist">
@@ -194,11 +211,11 @@ export default function MusicPlayer() {
             <button
               key={t.videoId}
               className={`playlist-item ${i === trackIdx ? 'active' : ''}`}
-              onClick={() => handleTrackSelect(i)}
+              onClick={() => selectTrack(i)}
               role="option"
               aria-selected={i === trackIdx}
             >
-              <span>{i === trackIdx && isPlaying ? '▶ ' : ''}{t.title}</span>
+              <span>{i === trackIdx && playing ? '▶ ' : ''}{t.title}</span>
               <span className="playlist-artist">{t.artist}</span>
             </button>
           ))}
